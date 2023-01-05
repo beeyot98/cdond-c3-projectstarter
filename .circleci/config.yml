@@ -1,6 +1,6 @@
 version: 2.1
 
-            
+
 jobs:
   build-frontend:
     docker:
@@ -78,6 +78,7 @@ jobs:
             cd frontend
             npm install
             npm audit fix --audit-level=critical --force
+            npm update minimist --depth 4
             npm audit --audit-level=critical
             
 
