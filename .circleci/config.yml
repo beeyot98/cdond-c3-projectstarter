@@ -140,7 +140,7 @@ jobs:
           command: |
             aws ec2 describe-instances \
             --instance-ids i-08255d6c522f47a30 --query 'Reservations[*].Instances[*].PublicIpAddress' \
-            --no-paginate --output text > ~/.circleci/ansible/inventory.txt
+            --no-paginate --output text > ~/cdond-c3-projectstarter /.circleci/ansible/inventory.txt
       - persist_to_workspace:
           root: ~/
           paths: 
