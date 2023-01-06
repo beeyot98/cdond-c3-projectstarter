@@ -148,7 +148,23 @@ jobs:
             - inventory.txt
       - destroy-environment
         
-
+  configure-infrastructure:
+    docker:
+      - image: python:3.7-alpine3.11
+    steps:
+      - checkout
+      - add_ssh_keys:
+          fingerprints: ["42:33:10:cc:0a:5e:5a:33:49:e6:c1:23:db:a5:05:9a"]
+      - run:
+          name: Install dependencies
+          command: |
+            apk add --update ansible 
+      - run:
+          name: Configure server
+          command: |
+            ansible-playbook -i inventory.txt configure-server.yml
+      - attach_workspace:
+          at: ~/
     
 
 
