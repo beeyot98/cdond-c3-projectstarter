@@ -8,8 +8,8 @@ commands:
           name: Destroy environments
           when: on_fail
           command: |
-            aws cloudformation delete-stack --stack-name udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}
-            aws cloudformation delete-stack --stack-name udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}
+            aws cloudformation delete-stack --stack-name udapeople-backend-${CIRCLE_WORKFLOW_ID:0:5}
+            aws cloudformation delete-stack --stack-name udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:5}
 
   revert-migrations:
     description: Revert the last migration
@@ -138,8 +138,8 @@ jobs:
           command: |
             aws cloudformation deploy \
             --template-file .circleci/files/backend.yml \
-            --stack-name udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7} \
-            --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}" \
+            --stack-name udapeople-backend-${CIRCLE_WORKFLOW_ID:0:5} \
+            --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:5}" \
             --tags project=udapeople 
               
       - run:
@@ -147,8 +147,8 @@ jobs:
           command: |
             aws cloudformation deploy \
             --template-file .circleci/files/frontend.yml \
-            --stack-name udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7} \
-            --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}" \
+            --stack-name udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:5} \
+            --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:5}" \
             --tags project=udapeople  
              
       - run:
@@ -201,7 +201,7 @@ jobs:
           command: |
             if grep -q "has been executed successfully." ~/backend/migrations_dump.txt
             then
-              curl https://kvdb.io/XoQ4VsgTqsH1t2BLSAQQE4/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
+              curl https://kvdb.io/XoQ4VsgTqsH1t2BLSAQQE4/migration_${CIRCLE_WORKFLOW_ID:0:5}  -d '1'
             fi
 
   deploy-frontend:
@@ -242,7 +242,7 @@ jobs:
             npm install
             npm run build
             tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
-            aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
+            aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:5} --recursive
       
       - destroy-environment
     
