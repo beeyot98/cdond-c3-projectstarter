@@ -199,6 +199,7 @@ jobs:
             rm -rf node_modules
             rm package-lock.json
             npm install
+            npm install migration
             npm run migrations > migrations_dump.txt
       - run:
           name: Send migration results to memstash
