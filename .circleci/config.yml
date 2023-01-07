@@ -170,7 +170,7 @@ jobs:
     steps:
       - checkout
       - add_ssh_keys:
-          fingerprints: ["42:33:10:cc:0a:5e:5a:33:49:e6:c1:23:db:a5:05:9a"]
+          fingerprints: ["89:f5:44:d3:00:0f:2f:e0:29:ee:57:ed:ce:fe:5f:79"]
       - run:
           name: Install dependencies
           command: |
@@ -232,7 +232,7 @@ jobs:
     steps:
       - checkout
       - add_ssh_keys:
-          fingerprints: ["42:33:10:cc:0a:5e:5a:33:49:e6:c1:23:db:a5:05:9a"]
+          fingerprints: ["89:f5:44:d3:00:0f:2f:e0:29:ee:57:ed:ce:fe:5f:79"]
       - attach_workspace:
           at: ~/
       - run:
@@ -273,4 +273,3 @@ workflows:
       - deploy-backend:
           requires: [run-migrations]
    
-    
