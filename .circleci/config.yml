@@ -186,7 +186,7 @@ jobs:
   
   run-migrations:
     docker:
-    - image: circleci/node:13.8.0 
+      - image: circleci/node:13.8.0 
     steps:
       - checkout
       - restore_cache:
@@ -195,11 +195,7 @@ jobs:
           name: Run migrations
           command: |
             cd backend
-            npm cache clean --force
-            rm -rf node_modules
-            rm package-lock.json
             npm install
-            npm install migration
             npm run migrations > migrations_dump.txt
       - run:
           name: Send migration results to memstash
