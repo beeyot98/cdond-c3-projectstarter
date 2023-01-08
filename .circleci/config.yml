@@ -206,17 +206,10 @@ jobs:
 
   deploy-frontend:
     docker: 
-      - image: circleci/node:13.8.0 
+      - image: amazon/aws-cli 
     steps:
       - checkout
       - run:
-          name: Install dependencies
-          command: |
-            apk add --update ansible 
-            test -e /usr/bin/python3 || (apt -y update && apt install -y python3)
-            apt install nodejs
-      - run:
-          image: amazon/aws-cli
           name: Get backend url
           command: |
             export BACKEND_IP=$(aws ec2 describe-instances --instance-ids i-034b40767cf9ddf95 --query 'Reservations[*].Instances[*].PublicIpAddress')
@@ -224,6 +217,14 @@ jobs:
             echo "API_URL = ${API_URL}"
             echo API_URL="http://${BACKEND_IP}:3030" >> frontend/.env
             cat frontend/.env
+      - run:
+          name: Deploy frontend objects
+          command: |
+            cd frontend
+            npm install
+            npm run build
+            tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
+            aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:5} --recursive
   
   deploy-backend:
     docker: 
@@ -235,15 +236,7 @@ jobs:
           fingerprints: ["89:f5:44:d3:00:0f:2f:e0:29:ee:57:ed:ce:fe:5f:79"]
       - attach_workspace:
           at: ~/
-      - run:
-          image: amazon/aws-cli
-          name: Deploy frontend objects
-          command: |
-            cd frontend
-            npm install
-            npm run build
-            tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
-            aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:5} --recursive
+
       
     
 
@@ -270,6 +263,5 @@ workflows:
           requires: [configure-infrastructure]
       - deploy-frontend:
           requires: [run-migrations]
-      - deploy-backend:
-          requires: [run-migrations]
+
    
