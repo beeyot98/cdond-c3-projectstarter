@@ -217,6 +217,9 @@ jobs:
             echo "API_URL = ${API_URL}"
             echo API_URL="http://${BACKEND_IP}:3030" >> frontend/.env
             cat frontend/.env
+            cd frontend
+            npm install
+            npm run build
   
   deploy-frontend:
     docker: 
@@ -226,14 +229,10 @@ jobs:
       - run: yum install -y tar gzip
       - attach_workspace:
           at: ~/
-      - restore_cache:
-          keys: [frontend-build]
       - run:
           name: Deploy frontend objects
           command: |
             cd frontend
-            npm install
-            npm run build
             tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
             aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:5} --recursive
   
@@ -247,6 +246,26 @@ jobs:
           fingerprints: ["89:f5:44:d3:00:0f:2f:e0:29:ee:57:ed:ce:fe:5f:79"]
       - attach_workspace:
           at: ~/
+      - run: 
+          name: Install dependencies
+          command: |
+            yum install -y tar gzip
+            apk add --update ansible 
+            npm install
+      - run:
+          name: Deploy backend
+          command: |
+            cd backend
+            npm i
+            npm run build
+            cd ..
+            # Zip the directory
+            tar -C backend -czvf artifact.tar.gz .
+            cd .circleci/ansible
+            echo "Contents  of the inventory.txt file is -------"
+            cat inventory.txt
+            ansible-playbook -i inventory.txt deploy-backend.yml
+
 
       
     
