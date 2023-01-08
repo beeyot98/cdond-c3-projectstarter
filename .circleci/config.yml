@@ -220,9 +220,12 @@ jobs:
   
   deploy-frontend:
     docker: 
-      - image: circleci/node:13.8.0
+      - image: amazon/aws-cli 
     steps:
-      - checkout   
+      - checkout 
+      - run: yum install -y tar gzip
+      - attach_workspace:
+          at: ~/
       - run:
           name: Deploy frontend objects
           command: |
