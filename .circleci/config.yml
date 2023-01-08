@@ -226,6 +226,8 @@ jobs:
       - run: yum install -y tar gzip
       - attach_workspace:
           at: ~/
+      - restore_cache:
+          keys: [frontend-build]
       - run:
           name: Deploy frontend objects
           command: |
