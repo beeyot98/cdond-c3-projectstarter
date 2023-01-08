@@ -206,7 +206,7 @@ jobs:
 
   deploy-frontend:
     docker: 
-      - image: amazon/aws-cli
+      - image: circleci/node:13.8.0 
     steps:
       - checkout
       - run:
@@ -216,6 +216,7 @@ jobs:
             test -e /usr/bin/python3 || (apt -y update && apt install -y python3)
             apt install nodejs
       - run:
+          image: amazon/aws-cli
           name: Get backend url
           command: |
             export BACKEND_IP=$(aws ec2 describe-instances --instance-ids i-034b40767cf9ddf95 --query 'Reservations[*].Instances[*].PublicIpAddress')
@@ -235,6 +236,7 @@ jobs:
       - attach_workspace:
           at: ~/
       - run:
+          image: amazon/aws-cli
           name: Deploy frontend objects
           command: |
             cd frontend
