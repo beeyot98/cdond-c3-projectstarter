@@ -17,7 +17,7 @@
 - name: start udapeople backend app
   become: true
   shell: |
-    cd ~/backend_content/artifact
+    ls ~/backend_content
     cd ~/backend_content 
     echo ENVIRONMENT=production >> .env
     echo NODE_ENV=production >> .env
