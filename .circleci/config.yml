@@ -160,6 +160,7 @@ jobs:
           paths: 
             - inventory.txt
       - destroy-environment
+      - revert-migrations
         
   configure-infrastructure:
     docker:
@@ -179,6 +180,8 @@ jobs:
             ansible-playbook -i inventory.txt configure-server.yml
       - attach_workspace:
           at: ~/
+      - destroy-environment
+      - revert-migrations
   
   run-migrations:
     docker:
@@ -200,6 +203,8 @@ jobs:
             then
               curl https://kvdb.io/XoQ4VsgTqsH1t2BLSAQQE4/migration_${CIRCLE_WORKFLOW_ID:0:5}  -d '1'
             fi
+      - destroy-environment
+      - revert-migrations
   
   deploy-frontend:
     docker: 
@@ -233,7 +238,7 @@ jobs:
             npm install
             npm run build
             tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
-            aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
+            aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:5} --recursive
       
       - destroy-environment
       - revert-migrations
@@ -267,6 +272,9 @@ jobs:
             echo "Contents  of the inventory.txt file is -------"
             cat inventory.txt
             ansible-playbook -i inventory.txt deploy-backend.yml
+        
+      - destroy-environment
+      - revert-migrations
 
 
       
