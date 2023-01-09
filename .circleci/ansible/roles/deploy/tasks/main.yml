@@ -18,6 +18,7 @@
   become: true
   shell: |
     cd ~/backend_content 
+    apk add --update nodejs npm 
     echo ENVIRONMENT=production >> .env
     echo NODE_ENV=production >> .env
     echo TYPEORM_CONNECTION=${TYPEORM_CONNECTION} >> .env
