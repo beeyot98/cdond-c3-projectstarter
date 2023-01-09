@@ -253,12 +253,19 @@ jobs:
           fingerprints: ["89:f5:44:d3:00:0f:2f:e0:29:ee:57:ed:ce:fe:5f:79"]
       - attach_workspace:
           at: ~/
-      - run: 
-          name: Install dependencies
+      - run:
+          name: Install AWS CLI
           command: |
-            yum install -y tar gzip
-            apk add --update ansible 
-            npm install
+            apk add --update aws-cli
+      - run:
+          name: Install Ansible
+          command: |
+            apk add --update ansible
+            cat .circleci/ansible/inventory.txt
+      - run:
+          name: Install nodejs, npm, gzip, curl and tar
+          command: |
+            apk add --update nodejs npm gzip tar openssh curl
       - run:
           name: Deploy backend
           command: |
@@ -266,6 +273,7 @@ jobs:
             npm i
             npm run build
             cd ..
+            
             # Zip the directory
             tar -C backend -czvf artifact.tar.gz .
             cd .circleci/ansible
@@ -302,6 +310,8 @@ workflows:
       - run-migrations:
           requires: [configure-infrastructure]
       - deploy-frontend:
+          requires: [run-migrations]
+      - deploy-backend:
           requires: [run-migrations]
 
 
