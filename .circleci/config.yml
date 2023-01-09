@@ -300,11 +300,9 @@ jobs:
       - run:
           name: Backend smoke test
           command: |
-              # Fetch and prepare the BACKEND_IP env var
-              export BACKEND_URL=$(curl -k "https://kvdb.io/XoQ4VsgTqsH1t2BLSAQQE4/backend_api_url_${CIRCLE_WORKFLOW_ID:0:5}")
-              echo ${CIRCLE_WORKFLOW_ID:0:5}
-              echo "backend url is: ${BACKEND_URL}"
-              if curl "${BACKEND_URL}/api/status" | grep "ok"
+              export API_URL="http://${BACKEND_IP}:3030"
+              echo "${API_URL}"
+              if curl "${API_URL}/api/status" | grep "ok"
               then
                   return 0
               else
