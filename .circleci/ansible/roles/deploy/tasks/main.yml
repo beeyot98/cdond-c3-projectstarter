@@ -1,0 +1,57 @@
+---
+- name: create web directory
+  become: true
+  file:
+    path: ~/backend_content
+    state: directory
+
+- name: extract zipped backend content
+  become: true
+  shell: |
+    tar xvzf /tmp/artifact.tar.gz --directory ~/backend_content
+  register: test_output
+
+- debug:
+    var: test_output
+
+- name: start udapeople backend app
+  become: true
+  shell: |
+    cd ~/backend_content 
+    echo ENVIRONMENT=production >> .env
+    echo NODE_ENV=production >> .env
+    echo TYPEORM_CONNECTION=${TYPEORM_CONNECTION} >> .env
+    echo TYPEORM_DATABASE=${TYPEORM_DATABASE} >> .env
+    echo TYPEORM_ENTITIES=${TYPEORM_ENTITIES} >> .env
+    echo TYPEORM_HOST=${TYPEORM_HOST} >> .env
+    echo TYPEORM_MIGRATIONS=${TYPEORM_MIGRATIONS} >> .env
+    echo TYPEORM_MIGRATIONS_DIR=${TYPEORM_MIGRATIONS_DIR} >> .env
+    echo TYPEORM_PASSWORD=${TYPEORM_PASSWORD}>> .env
+    echo TYPEORM_PORT=${TYPEORM_PORT} >> .env
+    echo TYPEORM_USERNAME=${TYPEORM_USERNAME} >> .env
+    npm install
+    pm2 stop default
+    # add steps to configure startup so that the service resumes on server reboots
+    pm2 startup
+    sudo env PATH=$PATH:/usr/bin /usr/local/lib/node_modules/pm2/bin/pm2 startup systemd -u ubuntu --hp /home/ubuntu
+    
+    pm2 start npm -- start
+    # save processes list for restore after server reboots
+    pm2 save
+  environment:
+    TYPEORM_CONNECTION: "{{ lookup('env', 'TYPEORM_CONNECTION')}}"  
+    TYPEORM_ENTITIES: "{{ lookup('env', 'TYPEORM_ENTITIES')}}"
+    TYPEORM_HOST: "{{ lookup('env', 'TYPEORM_HOST')}}"
+    TYPEORM_PORT: 5432
+    TYPEORM_USERNAME: "{{ lookup('env', 'TYPEORM_USERNAME')}}"
+    TYPEORM_PASSWORD: "{{ lookup('env', 'TYPEORM_PASSWORD')}}"
+    TYPEORM_DATABASE: "{{ lookup('env', 'TYPEORM_DATABASE')}}"
+    TYPEORM_MIGRATIONS: "{{ lookup('env', 'TYPEORM_MIGRATIONS')}}"
+    TYPEORM_MIGRATIONS_DIR: "{{ lookup('env', 'TYPEORM_MIGRATIONS_DIR')}}"
+
+- name: check vars
+  shell: |
+    echo {$TYPEORM_CONNECTION $TYPEORM_ENTITIES $TYPEORM_HOST $TYPEORM_PORT $TYPEORM_USERNAME}
+  register: set_vars
+
+- debug: var=test_output
