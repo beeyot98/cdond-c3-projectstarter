@@ -300,6 +300,8 @@ workflows:
           requires: [configure-infrastructure]
       - get-backend-url:
           requires: [run-migrations]
+      - deploy-frontend:
+          requires: [run-migrations]
 
 
    
