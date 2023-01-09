@@ -203,45 +203,45 @@ jobs:
             then
               curl https://kvdb.io/XoQ4VsgTqsH1t2BLSAQQE4/migration_${CIRCLE_WORKFLOW_ID:0:5}  -d '1'
             fi
-
-  get-backend-url:
+  
+  deploy-frontend:
     docker: 
-      - image: circleci/node:13.8.0
+      - image: python:3.11-rc-alpine 
     steps:
       - checkout
+      - restore_cache:
+          keys: [frontend-build]
+      - attach_workspace:
+          at: ~/   
+      - run:
+          name: Install AWS CLI
+          command: |
+            apk add --update aws-cli
+      - run:
+          name: Install nodejs, npm, gzip and tar
+          command: |
+            apk add --update nodejs npm gzip tar curl
       - run:
           name: Get backend url
           command: |
-            export BACKEND_IP=$(aws ec2 describe-instances --instance-ids i-089d17d6b6c84bb4a --query 'Reservations[*].Instances[*].PublicIpAddress')
+            export BACKEND_IP= $(grep -E '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' .circleci/ansible/inventory.txt)
             export API_URL="http://${BACKEND_IP}:3030"
             echo "API_URL = ${API_URL}"
             echo API_URL="http://${BACKEND_IP}:3030" >> frontend/.env
             cat frontend/.env
-            cd frontend
-            npm install
-            npm run build
-            tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
-
-      - save_cache:
-          paths: [frontend/dist]
-          key: frontend-buildx
-  
-  deploy-frontend:
-    docker: 
-      - image: amazon/aws-cli 
-    steps:
-      - checkout 
-      - run: yum install -y tar gzip
-      - attach_workspace:
-          at: ~/
-      - restore_cache:
-          keys: [frontend-buildx]
       - run:
           name: Deploy frontend objects
           command: |
             cd frontend
-            cd dist
-            aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:5} --recursive
+            npm install
+            npm run build
+            tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
+            aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
+      
+      - destroy-environment:
+          run_when: on_fail
+      - revert-migrations:
+          run_when: on_fail 
   
   deploy-backend:
     docker: 
@@ -298,8 +298,6 @@ workflows:
           requires: [deploy-infrastructure]
       - run-migrations:
           requires: [configure-infrastructure]
-      - get-backend-url:
-          requires: [run-migrations]
       - deploy-frontend:
           requires: [run-migrations]
 
