@@ -1,12 +1,12 @@
 ---
 - name: create web directory
-  become: true
+  #become: true
   file:
     path: ~/backend_content
     state: directory
 
 - name: extract zipped backend content
-  become: true
+  #become: true
   shell: |
     tar xvzf /tmp/artifact.tar.gz --directory ~/backend_content
   register: test_output
@@ -15,10 +15,9 @@
     var: test_output
 
 - name: start udapeople backend app
-  become: true
+  #become: true
   shell: |
     cd ~/backend_content 
-    apk add --update nodejs npm 
     echo ENVIRONMENT=production >> .env
     echo NODE_ENV=production >> .env
     echo TYPEORM_CONNECTION=${TYPEORM_CONNECTION} >> .env

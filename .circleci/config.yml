@@ -173,17 +173,19 @@ jobs:
       - checkout
       - add_ssh_keys:
           fingerprints: ["89:f5:44:d3:00:0f:2f:e0:29:ee:57:ed:ce:fe:5f:79"]
+      - attach_workspace:
+          at: ~/
       - run:
           name: Install dependencies
           command: |
             apk add --update ansible 
+            cat .circleci/ansible/inventory.txt
       - run:
           name: Configure server
           command: |
             cd .circleci/ansible
             ansible-playbook -i inventory.txt configure-server.yml
-      - attach_workspace:
-          at: ~/
+
 
   
   run-migrations:
