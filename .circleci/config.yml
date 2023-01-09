@@ -147,18 +147,23 @@ jobs:
             --stack-name udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:5} \
             --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:5}" \
             --tags project=udapeople  
-             
+
       - run:
           name: Add back-end ip to ansible inventory
           command: |
-            cd .circleci/ansible
+            touch ~/inventory
+            echo [all] > ~/inventory
             aws ec2 describe-instances \
-            --instance-ids i-089d17d6b6c84bb4a --query 'Reservations[*].Instances[*].PublicIpAddress' \
-            --no-paginate --output text > ~/inventory.txt 
+              --query 'Reservations[*].Instances[*].PublicIpAddress' \
+              --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:5}" \
+              --output text >> .circleci/ansible/inventory.txt
+            cat .circleci/ansible/inventory.txt
+            ls ~/     
+
       - persist_to_workspace:
           root: ~/
           paths: 
-            - inventory.txt
+            - project/.circleci/ansible/inventory.txt
       - destroy-environment
       - revert-migrations
         
@@ -231,6 +236,15 @@ jobs:
             echo "API_URL = ${API_URL}"
             echo API_URL="http://${BACKEND_IP}:3030" >> frontend/.env
             cat frontend/.env
+
+            if [[ ! -z "${API_URL}" ]]
+              then
+                echo "uploading $API_URL to kvdb"
+                curl -k "https://kvdb.io/XoQ4VsgTqsH1t2BLSAQQE4/backend_api_url_${CIRCLE_WORKFLOW_ID:0:5}" -d "${API_URL}"
+              else
+                echo "API_KEY check failed in if condition"
+                exit 1
+            fi
       - run:
           name: Deploy frontend objects
           command: |
@@ -300,9 +314,10 @@ jobs:
       - run:
           name: Backend smoke test
           command: |
-              export API_URL="http://${BACKEND_IP}:3030"
-              echo "${API_URL}"
-              if curl "${API_URL}/api/status" | grep "ok"
+              export BACKEND_URL=$(curl -k "https://kvdb.io/XoQ4VsgTqsH1t2BLSAQQE4/backend_api_url_${CIRCLE_WORKFLOW_ID:0:7}")
+              echo ${CIRCLE_WORKFLOW_ID:0:7}
+              echo "backend url is: ${BACKEND_URL}"
+              if curl "${BACKEND_URL}/api/status" | grep "ok"
               then
                   return 0
               else
