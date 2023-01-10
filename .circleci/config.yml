@@ -313,7 +313,7 @@ jobs:
             echo "Contents  of the inventory.txt file is -------"
             cat inventory.txt
             ansible-playbook -i inventory.txt deploy-backend.yml
-        
+            sleep 25
       - destroy-environment
       - revert-migrations
         
@@ -337,6 +337,7 @@ jobs:
           command: |
               export API_URL=$(curl -k "https://kvdb.io/XoQ4VsgTqsH1t2BLSAQQE4/backend_api_url_${CIRCLE_WORKFLOW_ID:0:5}")
               echo "${API_URL}"
+              sleep 25
               if curl "${API_URL}/api/status" | grep "ok"
               then
                   return 0
@@ -354,7 +355,8 @@ jobs:
             else
               return 1
             fi
-      
+      - destroy-environment
+      - revert-migrations
 
       
   cloudfront-update:
@@ -426,6 +428,9 @@ workflows:
           requires: [build-backend]
       - deploy-infrastructure:
           requires: [test-frontend, test-backend, scan-frontend, scan-backend]
+          filters:
+            branches:
+              only: [test-feature-branch]
       - configure-infrastructure:
           requires: [deploy-infrastructure]
       - run-migrations:
