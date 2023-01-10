@@ -336,7 +336,6 @@ jobs:
           command: |
               export BACKEND_URL=$(curl -k "https://kvdb.io/XoQ4VsgTqsH1t2BLSAQQE4/backend_api_url_${CIRCLE_WORKFLOW_ID:0:5}")
               echo ${CIRCLE_WORKFLOW_ID:0:5}
-              echo "backend url is: ${BACKEND_URL}"
               if curl "${BACKEND_URL}/api/status" | grep "ok"
               then
                   return 0
@@ -350,10 +349,13 @@ jobs:
             echo ${URL} 
             if curl -s ${URL} | grep "Welcome"
             then
-              return 0
+              return 1
             else
               return 1
             fi
+      
+      - destroy-environment
+      - revert-migrations
       
   cloudfront-update:
     docker:
@@ -375,7 +377,7 @@ jobs:
             aws cloudformation deploy \
               --template-file .circleci/files/cloudfront.yml \
               --stack-name InitialStack \
-              --parameter-overrides WorkflowID="${CIRCLE_WORKFLOW_ID:0:7}" \
+              --parameter-overrides WorkflowID="${CIRCLE_WORKFLOW_ID:0:5}" \
               --tags project=udapeople
 
 
