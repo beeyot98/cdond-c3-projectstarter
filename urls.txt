@@ -1,0 +1,2 @@
+Github repository: https://github.com/beeyot98/cdond-c3-projectstarter
+S3 Bucket: http://udapeople-83b05.s3-website-us-east-1.amazonaws.com
