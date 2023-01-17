@@ -8,7 +8,7 @@
 - name: extract zipped backend content
   become: true
   shell: |
-    tar xvzf /tmp/artifact.tar.gz --directory ~/backend_content
+    tar xvzf /artifact.tar.gz --directory ~/backend_content
   register: test_output
 
 - debug:
@@ -31,7 +31,6 @@
     echo TYPEORM_USERNAME=${TYPEORM_USERNAME} >> .env
     npm install
     pm2 stop default
-    # add steps to configure startup so that the service resumes on server reboots
     pm2 startup
     sudo env PATH=$PATH:/usr/bin/usr/local/lib/node_modules/pm2/bin/pm2 startup systemd -u ubuntu --hp /home/ubuntu
     
