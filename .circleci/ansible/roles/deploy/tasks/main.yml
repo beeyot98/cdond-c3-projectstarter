@@ -8,7 +8,7 @@
 - name: extract zipped backend content
   become: true
   shell: |
-    tar xvzf /artifact.tar.gz --directory ~/backend_content
+    tar xvzf /tmp/artifact.tar.gz --directory ~/backend_content
   register: test_output
 
 - debug:
