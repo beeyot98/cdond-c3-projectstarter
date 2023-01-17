@@ -302,19 +302,7 @@ jobs:
       - run:
           name: Deploy backend
           command: |
-            cd backend
-            npm i
-            npm run build
-            cd ..
-            
-            # Zip the directory
-            tar -C backend -czvf ~/artifact.tar.gz .
             cd .circleci/ansible
-
-            export TARGET_IP=$(grep -E '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' inventory.txt)
-            ssh-keyscan ${TARGET_IP} >> ~/.ssh/known_hosts
-            scp ~/artifact.tar.gz ubuntu@${TARGET_IP}:/tmp
-
             echo "Contents  of the inventory.txt file is -------"
             cat inventory.txt
             ansible-playbook -i inventory.txt deploy-backend.yml
@@ -345,7 +333,7 @@ jobs:
               sleep 25
               if curl "${API_URL}/api/status" | grep "ok"
               then
-                  return 1
+                  return 0
               else
                   return 1
               fi
