@@ -1,7 +1,7 @@
 
 ---
 - name: create web directory
-  # become: yes
+  become: yes
   file:
     path: ~/backend_content
     state: directory
@@ -17,7 +17,7 @@
 #     state: directory
 
 - name: extract zipped backend content
-  # become: yes
+  become: yes
   shell: |
     tar xvzf /tmp/artifact.tar.gz --directory ~/backend_content
   register: test_output
@@ -26,7 +26,7 @@
     var: test_output
 
 - name: start udapeople backend app
-  # become: yes
+  become: yes
   shell: |
     cd ~/backend_content 
     echo ENVIRONMENT=production >> .env
